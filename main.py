@@ -1,6 +1,6 @@
-from bs4 import BeautifulSoup as BSoup
-import pandas as pd
 import requests
+import pandas as pd
+from bs4 import BeautifulSoup as BSoup
 
 from scraping.bloomberg import bloomberg
 from utils.slack import message_to_slack
@@ -32,6 +32,6 @@ if __name__ == "__main__":
     message = update_mongo(TEST_CLUSTER, bb)
 
     # Send the message to Slack
-    message_to_slack(message)
+    message_to_slack(message if message != '' else 'Nothing new yet...')
 
 

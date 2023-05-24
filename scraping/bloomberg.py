@@ -1,8 +1,8 @@
-from bs4 import BeautifulSoup as BSoup, Tag
-from bs4.element import PageElement
-from typing import Optional, Tuple
-import pandas as pd
 import re
+import pandas as pd
+from typing import Optional, Tuple
+from bs4.element import PageElement
+from bs4 import BeautifulSoup as BSoup, Tag
 
 from utils.mongo import MongoData
 
@@ -51,7 +51,6 @@ def bloomberg(page: BSoup) -> pd.DataFrame:
                     links.append(link)
                     titles.append(title)
                     times.append(title_time)
-                    print(f'News {title=}')
 
             except Exception as error:
                 # Handle any exceptions that occur during extraction
