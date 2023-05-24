@@ -1,7 +1,6 @@
 import pandas as pd
 
-TEST_LOGIN: str = 'kirill'
-TEST_PASSWORD: str = '1234'
+TEST_CLUSTER: str = f"mongodb+srv://kirill:1234@freecluster.apw2jua.mongodb.net/"
 
 
 class MongoData:
@@ -60,10 +59,14 @@ def update_mongo(cluster_name: str, data: pd.DataFrame) -> str:
 
 
 if __name__ == '__main__':
+    # Create an empty DataFrame
     df = pd.DataFrame()
+
+    # Populate the DataFrame with test data
     df[MongoData.Title] = ["Test title 1", "Test title 2", "Test title 4"]
     df[MongoData.Link] = ["www.nothing.xx", "https:/www.nothing2.xx", "www.nothing3.xxxx"]
     df[MongoData.Time] = ["updated 20 minutes ago", "updated 16 minutes ago", "recently"]
 
-    msg = update_mongo(f"mongodb+srv://{TEST_LOGIN}:{TEST_PASSWORD}@freecluster.apw2jua.mongodb.net/", df)
-    print(msg)
+    # Print the result of the 'update_mongo' function with the test data
+    print(update_mongo(TEST_CLUSTER, df))
+
