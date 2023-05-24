@@ -2,12 +2,12 @@ import os
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
 
-from utils.helpers import get_slack_token
+from utils.helpers import get_slack_token, get_slack_channel
 
 SLACK_BOT_TOKEN = "SLACK_BOT_TOKEN"
 
 
-def message_to_slack(message: str, channel: str = 'test'):
+def message_to_slack(message: str):
     # If the message is empty, return without sending a Slack message
     if message == '':
         return
@@ -24,7 +24,7 @@ def message_to_slack(message: str, channel: str = 'test'):
         client = WebClient(token=token)
 
         # Send a message to the specified channel
-        client.chat_postMessage(channel="#" + channel, text=message)
+        client.chat_postMessage(channel=get_slack_channel('slack_cfg.json'), text=message)
 
     except SlackApiError as error:
         # Handle any Slack API errors that occur

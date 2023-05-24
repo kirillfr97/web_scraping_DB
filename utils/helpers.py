@@ -15,6 +15,13 @@ def get_slack_token(file_path: str) -> str:
         return config['slack']['oauth_token']
 
 
+def get_slack_channel(file_path: str) -> str:
+    # This function retrieves the Slack Channel from a configuration file
+    with open(file_path, 'r') as config_file:
+        config = json.load(config_file)
+        return config['slack']['channel']
+
+
 def get_mongo_cluster(file_path: str) -> str:
     # This function retrieves the MongoDB cluster connection URL from a configuration file
     with open(file_path, 'r') as config_file:
