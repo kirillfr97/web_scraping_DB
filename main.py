@@ -3,6 +3,7 @@ import pandas as pd
 from bs4 import BeautifulSoup as BSoup
 
 from scraping.bloomberg import bloomberg
+from utils.helpers import get_mongo_cluster
 from utils.slack import message_to_slack
 from utils.mongo import update_mongo
 
@@ -22,14 +23,11 @@ def scrape(url: str, method) -> pd.DataFrame:
 
 
 if __name__ == "__main__":
-    # Import the TEST_CLUSTER from the 'utils.mongo' module
-    from utils.mongo import TEST_CLUSTER
-
     # Scrape the Bloomberg web-page using the 'bloomberg' method
     bb = scrape('https://www.bloomberg.com/economics', bloomberg)
 
     # Update the MongoDB database with the scraped data and retrieve the message
-    message = update_mongo(TEST_CLUSTER, bb)
+    message = update_mongo(get_mongo_cluster('slack_cfg.json'), bb)
 
     # Send the message to Slack
     message_to_slack(message if message != '' else 'Nothing new yet...')

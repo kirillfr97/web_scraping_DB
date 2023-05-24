@@ -1,19 +1,13 @@
 import os
-import json
-from slack_sdk.errors import SlackApiError
 from slack_sdk import WebClient
+from slack_sdk.errors import SlackApiError
+
+from utils.helpers import get_slack_token
 
 SLACK_BOT_TOKEN = "SLACK_BOT_TOKEN"
 
 
-def get_slack_token(file_path) -> str:
-    # This function retrieves the Slack OAuth token from a configuration file
-    with open(file_path, 'r') as config_file:
-        config = json.load(config_file)
-        return config['slack']['oauth_token']
-
-
-def message_to_slack(message: str, channel: str = "test"):
+def message_to_slack(message: str, channel: str = 'test'):
     # If the message is empty, return without sending a Slack message
     if message == '':
         return

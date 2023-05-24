@@ -1,6 +1,6 @@
 import pandas as pd
 
-TEST_CLUSTER: str = f"mongodb+srv://kirill:1234@freecluster.apw2jua.mongodb.net/"
+from utils.helpers import get_mongo_cluster
 
 
 class MongoData:
@@ -68,5 +68,5 @@ if __name__ == '__main__':
     df[MongoData.Time] = ["updated 20 minutes ago", "updated 16 minutes ago", "recently"]
 
     # Print the result of the 'update_mongo' function with the test data
-    print(update_mongo(TEST_CLUSTER, df))
+    print(update_mongo(get_mongo_cluster('slack_cfg.json'), df))
 
