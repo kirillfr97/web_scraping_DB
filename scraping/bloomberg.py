@@ -1,8 +1,22 @@
 from bs4 import BeautifulSoup as BSoup, Tag
 from typing import Optional, Tuple
+from slack_sdk.errors import SlackApiError
+from slack_sdk import WebClient
 import pandas as pd
 import requests
 import re
+
+
+SLACK_CHANNEL: str = "test"
+SLACK_BOT_TOKEN: str = "xoxb-5310612778596-5305206526405-PJNrT3HOi0okNo9dLWKnyZMO"
+
+
+def msg_slack(text: str):
+    try:
+        client = WebClient(token=SLACK_BOT_TOKEN)
+        client.chat_postMessage(channel="#" + SLACK_CHANNEL, text=text)
+    except SlackApiError as error:
+        print(repr(error))
 
 
 def update_mongo(cluster_name: str, data: pd.DataFrame):
@@ -10,6 +24,7 @@ def update_mongo(cluster_name: str, data: pd.DataFrame):
     from pymongo.errors import ConnectionFailure
     cluster: MongoClient = MongoClient(cluster_name)
 
+    message: str = ''
     try:
         # Low cost check
         cluster.admin.command('ping')
@@ -20,11 +35,14 @@ def update_mongo(cluster_name: str, data: pd.DataFrame):
         print(f'Updating...\nAdding {len(data)} new rows')
         for row in data.to_numpy():
             collection.insert_one(dict(zip(data.columns, row)))
+            message += f"\"{row[0]}\": {row[1]}\n"
+
     except ConnectionFailure:
         print('Server not available')
     except Exception as error:
         print(repr(error))
     finally:
+        msg_slack(message)
         cluster.close()
     print('Done')
 
@@ -86,4 +104,3 @@ def bloomberg(page: BSoup) -> pd.DataFrame:
 if __name__ == "__main__":
     bb = scrape('https://www.bloomberg.com/economics', bloomberg)
     update_mongo("mongodb+srv://kirill:1234@freecluster.apw2jua.mongodb.net/", bb)
-
