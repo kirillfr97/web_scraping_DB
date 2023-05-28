@@ -2,9 +2,8 @@ import os
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
 
+from definitions import SLACK_BOT_TOKEN
 from config.helpers import get_slack_token, get_slack_channel
-
-SLACK_BOT_TOKEN = "SLACK_BOT_TOKEN"
 
 
 def message_to_slack(message: str):
