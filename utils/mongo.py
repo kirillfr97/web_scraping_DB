@@ -1,6 +1,6 @@
 import pandas as pd
 
-from utils.helpers import get_mongo_cluster
+from config.helpers import get_mongo_cluster
 
 
 class MongoData:
@@ -13,11 +13,14 @@ def update_mongo(cluster_name: str, data: pd.DataFrame) -> str:
     from pymongo import MongoClient
     from pymongo.errors import ConnectionFailure
 
-    # Establish a connection to the MongoDB cluster
-    cluster: MongoClient = MongoClient(cluster_name)
-
     # Initialize an empty message string
     message: str = ''
+
+    if cluster_name == '':
+        return message
+
+    # Establish a connection to the MongoDB cluster
+    cluster: MongoClient = MongoClient(cluster_name)
 
     try:
         # Low cost check to verify the availability of the MongoDB server
@@ -68,5 +71,4 @@ if __name__ == '__main__':
     df[MongoData.Time] = ["updated 20 minutes ago", "updated 16 minutes ago", "recently"]
 
     # Print the result of the 'update_mongo' function with the test data
-    print(update_mongo(get_mongo_cluster('slack_cfg.json'), df))
-
+    print(update_mongo(get_mongo_cluster(), df))
