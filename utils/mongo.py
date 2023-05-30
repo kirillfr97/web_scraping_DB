@@ -1,7 +1,5 @@
 from pandas import DataFrame
 
-from config.helpers import get_mongo_cluster
-
 
 class MongoData:
     Title = 'title'
@@ -62,6 +60,9 @@ def update_mongo(cluster_name: str, data: DataFrame) -> str:
 
 
 if __name__ == '__main__':
+    # Local import
+    from config.helpers import get_mongo_cluster
+
     # Create an empty DataFrame
     df = DataFrame()
 

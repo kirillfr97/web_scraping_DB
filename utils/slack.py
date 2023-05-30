@@ -1,9 +1,8 @@
-import os
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
 
-from definitions import SLACK_BOT_TOKEN
-from config.helpers import get_slack_token, get_slack_channel
+from config.settings import SLACK_CHANNEL
+from config.helpers import get_slack_token
 
 
 def message_to_slack(message: str):
@@ -12,19 +11,17 @@ def message_to_slack(message: str):
         print('Empty message was given')
         return
 
-    try:
-        if SLACK_BOT_TOKEN in os.environ:
-            # Retrieve the Slack token from environment variables if available
-            token = os.environ.get(SLACK_BOT_TOKEN)
-        else:
-            # Retrieve the Slack token from a configuration file
-            token = get_slack_token()
+    # Retrieve the Slack token
+    token = get_slack_token()
+    if token is None:
+        return
 
+    try:
         # Create a WebClient instance using the Slack token
         client = WebClient(token=token)
 
         # Send a message to the specified channel
-        client.chat_postMessage(channel=get_slack_channel(), text=message)
+        client.chat_postMessage(channel=SLACK_CHANNEL, text=message)
 
     except SlackApiError as error:
         # Handle any Slack API errors that occur

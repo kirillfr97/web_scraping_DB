@@ -1,41 +1,33 @@
 import os
-from json import load
+from typing import Optional
 
-from definitions import CONFIG_PATH
-
-
-def load_config() -> dict:
-    # Check if the configuration file exists
-    if not os.path.exists(CONFIG_PATH):
-        return {}
-
-    # Open the configuration file and load the JSON data
-    with open(CONFIG_PATH, 'r') as config_file:
-        config: dict = load(config_file)
-
-    return config
+from .settings import *
 
 
-def get_slack_token() -> str:
-    # This function retrieves the Slack OAuth token from a configuration file
-    config = load_config()
+def get_mongo_cluster() -> Optional[str]:
+    # Check if the MONGO_LOGIN environment variable exists
+    if MONGO_LOGIN not in os.environ:
+        print(f'Environment variable {MONGO_LOGIN} does not exist')
+        return None
 
-    # If configuration is not available, return an empty string
-    return config.get('slack', {}).get('oauth_token', '')
+    # Check if the MONGO_PASSWORD environment variable exists
+    if MONGO_PASSWORD not in os.environ:
+        print(f'Environment variable {MONGO_PASSWORD} does not exist')
+        return None
 
+    # Retrieve the values of MONGO_LOGIN and MONGO_PASSWORD from environment variables
+    login = os.environ.get(MONGO_LOGIN)
+    password = os.environ.get(MONGO_PASSWORD)
 
-def get_slack_channel() -> str:
-    # This function retrieves the Slack Channel from a configuration file
-    config = load_config()
-
-    # If configuration is not available, return an empty string
-    return config.get('slack', {}).get('channel', '')
-
-
-def get_mongo_cluster() -> str:
-    # This function retrieves the MongoDB cluster connection URL from a configuration file
-    config = load_config()
-
-    login = config.get('mongo_db', {}).get('login', '')
-    password = config.get('mongo_db', {}).get('password', '')
+    # Construct and return the MongoDB cluster URL
     return f'mongodb+srv://{login}:{password}@freecluster.apw2jua.mongodb.net/'
+
+
+def get_slack_token() -> Optional[str]:
+    # Check if the SLACK_BOT_TOKEN environment variable exists
+    if SLACK_BOT_TOKEN not in os.environ:
+        print(f'Environment variable {SLACK_BOT_TOKEN} does not exist')
+        return None
+
+    # Retrieve the value of SLACK_BOT_TOKEN from environment variables
+    return os.environ.get(SLACK_BOT_TOKEN)
