@@ -1,11 +1,13 @@
+from time import sleep
 from pandas import DataFrame
 from requests import Session
 from bs4 import BeautifulSoup as BSoup
 
-from scraping.bloomberg import bloomberg
+from scrapers.bloomberg import bloomberg
 from config.helpers import get_mongo_cluster
 from utils.slack import message_to_slack
 from utils.mongo import update_mongo
+from definitions import TIME_INTERVAL
 
 
 def scrape(url: str, method) -> DataFrame:
@@ -23,13 +25,18 @@ def scrape(url: str, method) -> DataFrame:
 
 
 if __name__ == "__main__":
-    # Scrape the Bloomberg web-page using the 'bloomberg' method
-    bb = scrape('https://www.bloomberg.com/economics', bloomberg)
+    # Endless River
+    while True:
+        # Scrape the Bloomberg web-page using the 'bloomberg' method
+        web_page = scrape('https://www.bloomberg.com/economics', bloomberg)
 
-    # Update the MongoDB database with the scraped data and retrieve the message
-    message = update_mongo(get_mongo_cluster(), bb)
+        # Update the MongoDB database with the scraped data and retrieve the message
+        message = update_mongo(get_mongo_cluster(), web_page)
 
-    # Send the message to Slack
-    message_to_slack(message if message != '' else 'Nothing new yet...')
+        # Send the message to Slack
+        message_to_slack(message if message != '' else 'Nothing new yet...')
+
+        # Sleep
+        sleep(TIME_INTERVAL)
 
 

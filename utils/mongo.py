@@ -1,4 +1,4 @@
-import pandas as pd
+from pandas import DataFrame
 
 from config.helpers import get_mongo_cluster
 
@@ -9,7 +9,7 @@ class MongoData:
     Time = 'time'
 
 
-def update_mongo(cluster_name: str, data: pd.DataFrame) -> str:
+def update_mongo(cluster_name: str, data: DataFrame) -> str:
     from pymongo import MongoClient
     from pymongo.errors import ConnectionFailure
 
@@ -63,7 +63,7 @@ def update_mongo(cluster_name: str, data: pd.DataFrame) -> str:
 
 if __name__ == '__main__':
     # Create an empty DataFrame
-    df = pd.DataFrame()
+    df = DataFrame()
 
     # Populate the DataFrame with test data
     df[MongoData.Title] = ["Test title 1", "Test title 2", "Test title 4"]
