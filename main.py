@@ -76,9 +76,10 @@ if __name__ == "__main__":
             sleep(TIME_INTERVAL)
             print('\n')
 
-    except ConnectionFailure:
+    except ConnectionFailure as failure:
         # Handle connection failure error
         print('Server not available')
+        print(repr(failure))
 
     except Exception as error:
         # Handle other exceptions
