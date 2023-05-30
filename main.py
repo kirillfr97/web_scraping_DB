@@ -1,5 +1,5 @@
-import requests
-import pandas as pd
+from pandas import DataFrame
+from requests import Session
 from bs4 import BeautifulSoup as BSoup
 
 from scraping.bloomberg import bloomberg
@@ -8,9 +8,9 @@ from utils.slack import message_to_slack
 from utils.mongo import update_mongo
 
 
-def scrape(url: str, method) -> pd.DataFrame:
+def scrape(url: str, method) -> DataFrame:
     # Create a session object
-    session = requests.Session()
+    session = Session()
 
     # Send a GET request to the specified URL with a custom User-Agent header
     response = session.get(url, headers={'User-Agent': 'Mozilla/5.0'})

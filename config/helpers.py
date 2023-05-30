@@ -1,5 +1,5 @@
 import os
-import json
+from json import load
 
 from definitions import CONFIG_PATH
 
@@ -11,7 +11,7 @@ def load_config() -> dict:
 
     # Open the configuration file and load the JSON data
     with open(CONFIG_PATH, 'r') as config_file:
-        config: dict = json.load(config_file)
+        config: dict = load(config_file)
 
     return config
 

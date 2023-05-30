@@ -1,5 +1,5 @@
-import re
-import pandas as pd
+from re import compile
+from pandas import DataFrame
 from typing import Optional, Tuple
 from bs4.element import PageElement
 from bs4 import BeautifulSoup as BSoup, Tag
@@ -9,7 +9,7 @@ from utils.mongo import MongoData
 
 def get_lnk_title(tag: Tag | PageElement) -> Tuple[Optional[str], Optional[str]]:
     # Extract links and titles from the given tag
-    sections = tag.find_all('a', attrs={'href': re.compile(r'https\S*')})
+    sections = tag.find_all('a', attrs={'href': compile(r'https\S*')})
     for section in sections:
         lnk = section.get('href')
         title = section.text
@@ -24,9 +24,9 @@ def get_title_time(tag: Tag | PageElement) -> str:
     return section.text if section else ''
 
 
-def bloomberg(page: BSoup) -> pd.DataFrame:
+def bloomberg(page: BSoup) -> DataFrame:
     # Create an empty DataFrame
-    df = pd.DataFrame()
+    df = DataFrame()
 
     # Create empty lists to store titles, links, and times
     titles, links, times = [], [], []
