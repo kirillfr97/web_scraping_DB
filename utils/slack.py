@@ -8,7 +8,6 @@ from config.helpers import get_slack_token
 def message_to_slack(message: str):
     # If the message is empty, return without sending a Slack message
     if message == '':
-        print('Empty message was given')
         return
 
     # Retrieve the Slack token
@@ -22,6 +21,7 @@ def message_to_slack(message: str):
 
         # Send a message to the specified channel
         client.chat_postMessage(channel=SLACK_CHANNEL, text=message)
+        print(f'Message was send to Slack Channel \"{SLACK_CHANNEL}\"')
 
     except SlackApiError as error:
         # Handle any Slack API errors that occur

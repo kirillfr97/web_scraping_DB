@@ -37,6 +37,7 @@ def bloomberg(page: BSoup) -> DataFrame:
         "styles_storiesContainer__kLMAY",  # Latest News
     ]
 
+    print('Scraping the page...')
     for section in sections:
         # Find all tags with the specified class in the page
         tags: Tag = page.find(class_=section)
@@ -55,6 +56,7 @@ def bloomberg(page: BSoup) -> DataFrame:
             except Exception as error:
                 # Handle any exceptions that occur during extraction
                 print(repr(error))
+    print(f'Scraping completed! Found {len(links)} elements on the page')
 
     # Assign the lists as columns in the DataFrame
     df[MongoData.Title] = titles

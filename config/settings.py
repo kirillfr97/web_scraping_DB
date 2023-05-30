@@ -1,5 +1,5 @@
 # Specifying the frequency of code execution (in seconds)
-TIME_INTERVAL = 5000
+TIME_INTERVAL = 300
 
 # Specifying the name of Slack Channel (which will receive messages)
 SLACK_CHANNEL = '#test'
