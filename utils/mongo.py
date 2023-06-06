@@ -47,7 +47,13 @@ class MongoDataBase:
             data (DataFrame): The data to update the collection with.
             collection_name (str): The name of the collection to update.
 
+        Raises:
+            Exception: If no MongoDB cluster connection was established.
+
         """
+        if self._cluster is None:
+            raise Exception('No MongoDB cluster connection was established')
+
         # Clear list of updated documents
         self._documents = []
 

@@ -4,61 +4,67 @@ from typing import Optional, Tuple
 from bs4.element import PageElement
 from bs4 import BeautifulSoup as BSoup, Tag
 
+from scrapers.base_scraper import BaseScraper
 from utils.mongo import MongoData
 
 
-def get_lnk_title(tag: Tag | PageElement) -> Tuple[Optional[str], Optional[str]]:
-    # Extract links and titles from the given tag
-    sections = tag.find_all('a', attrs={'href': compile(r'https\S*')})
-    for section in sections:
-        lnk = section.get('href')
-        title = section.text
-        if lnk != '' and title != '':
-            return lnk, title.replace('â€™', '\'')
-    return None, None
+class BloombergScraper(BaseScraper):
 
+    name = 'Bloomberg'
+    crawl_url = 'https://www.bloomberg.com/economics'
 
-def get_title_time(tag: Tag | PageElement) -> str:
-    # Extract the title time from the given tag
-    section = tag.find("div", attrs={"data-component": "recent-timestamp"})
-    return section.text if section else ''
+    def _scrape_page(self, web_page: BSoup) -> DataFrame:
+        # Create an empty DataFrame
+        df = DataFrame()
 
+        # Create empty lists to store titles, links, and times
+        titles, links, times = [], [], []
 
-def bloomberg(page: BSoup) -> DataFrame:
-    # Create an empty DataFrame
-    df = DataFrame()
+        # Specify the sections to extract data from
+        sections = [
+            "styles_info__E4gXL",  # Main Headline
+            "styles_storiesContainer__kLMAY",  # Latest News
+        ]
 
-    # Create empty lists to store titles, links, and times
-    titles, links, times = [], [], []
+        for section in sections:
+            # Find all tags with the specified class in the page
+            tags: Tag = web_page.find(class_=section)
+            for tag in tags:
+                try:
+                    # Extract link, title, and title time from the tag
+                    link, title = self._get_lnk_title(tag)
+                    title_time = self._get_title_time(tag)
 
-    # Specify the sections to extract data from
-    sections = [
-        "styles_info__E4gXL",  # Main Headline
-        "styles_storiesContainer__kLMAY",  # Latest News
-    ]
+                    if link not in links and link is not None:
+                        # Append unique links, titles, and times to the respective lists
+                        links.append(link)
+                        titles.append(title)
+                        times.append(title_time)
 
-    for section in sections:
-        # Find all tags with the specified class in the page
-        tags: Tag = page.find(class_=section)
-        for tag in tags:
-            try:
-                # Extract link, title, and title time from the tag
-                link, title = get_lnk_title(tag)
-                title_time = get_title_time(tag)
+                except Exception as error:
+                    # Handle any exceptions that occur during extraction
+                    print(repr(error))
 
-                if link not in links and link is not None:
-                    # Append unique links, titles, and times to the respective lists
-                    links.append(link)
-                    titles.append(title)
-                    times.append(title_time)
+        # Assign the lists as columns in the DataFrame
+        df[MongoData.Title] = titles
+        df[MongoData.Link] = links
+        df[MongoData.Time] = times
 
-            except Exception as error:
-                # Handle any exceptions that occur during extraction
-                print(repr(error))
+        return df
 
-    # Assign the lists as columns in the DataFrame
-    df[MongoData.Title] = titles
-    df[MongoData.Link] = links
-    df[MongoData.Time] = times
+    @staticmethod
+    def _get_lnk_title(tag: Tag | PageElement) -> Tuple[Optional[str], Optional[str]]:
+        # Extract links and titles from the given tag
+        sections = tag.find_all('a', attrs={'href': compile(r'https\S*')})
+        for section in sections:
+            lnk = section.get('href')
+            title = section.text
+            if lnk != '' and title != '':
+                return lnk, title.replace('â€™', '\'')
+        return None, None
 
-    return df
+    @staticmethod
+    def _get_title_time(tag: Tag | PageElement) -> str:
+        # Extract the title time from the given tag
+        section = tag.find("div", attrs={"data-component": "recent-timestamp"})
+        return section.text if section else ''
