@@ -1,6 +1,9 @@
+from typing import Optional
 from pandas import DataFrame
 from pymongo import MongoClient
 from pymongo.database import Database
+
+from config.helpers import get_mongo_url
 
 
 class MongoData:
@@ -9,37 +12,97 @@ class MongoData:
     Time = 'time'
 
 
-def update_mongo(database: Database, collection_name: str, data: DataFrame) -> str:
-    # Initialize an empty message string
-    message: str = ''
+class MongoDataBase:
+    def __init__(self):
+        """Initialize the MongoDataBase class."""
+        # List to store information about inserted documents
+        self._documents: list = []
 
-    # Get the 'collection_name' collection within database
-    collection = database[collection_name]
+        # MongoDB cluster connection object
+        self._cluster: Optional[MongoClient] = None
 
-    # Delete documents from the collection where the 'Title' field is not in the provided data
-    print(f'Updating collection {collection_name}...')
-    query = {MongoData.Title: {'$nin': data[MongoData.Title].to_list()}}
-    for itm_to_delete in collection.find(query):
-        collection.delete_one(itm_to_delete)
+        # Establish a connection to the MongoDB cluster upon initialization
+        self._connect()
 
-    # Iterate over the data DataFrame
-    counter = 0
-    for r, title in enumerate(data[MongoData.Title]):
-        # Find and update a document in the collection based on the 'Title' field
-        if collection.find_one_and_update(
-                {MongoData.Title: title},
-                {'$set': {MongoData.Time: data[MongoData.Time][r]}}
-        ) is None:
-            # Increase the counter
-            counter += 1
-            # If the document doesn't exist, insert a new document into the collection
-            collection.insert_one(dict(zip(data.columns, data.values[r])))
-            # Append a message with the title and link to the inserted document
-            message += f"\"{data[MongoData.Title][r]}\": {data[MongoData.Link][r]}\n"
+    def _connect(self):
+        """Connect to the MongoDB cluster."""
+        try:
+            # Getting the MongoDB cluster URL
+            cluster_url = get_mongo_url()
 
-    # Return the message containing information about inserted documents
-    print(f'Update completed: {counter} inserted documents')
-    return message
+            # Establish a connection to the MongoDB cluster
+            self._cluster: MongoClient = MongoClient(cluster_url)
+
+            # Low cost check to verify the availability of the MongoDB server
+            self._cluster.admin.command('ping')
+
+        except Exception as e:
+            self._cluster = None
+            print(repr(e))
+
+    def update(self, data: DataFrame, collection_name: str):
+        """Update the collection with the provided data.
+
+        Args:
+            data (DataFrame): The data to update the collection with.
+            collection_name (str): The name of the collection to update.
+
+        """
+        # Clear list of updated documents
+        self._documents = []
+
+        # Get the 'collection_name' collection within database
+        collection = self.database[collection_name]
+
+        # Delete documents from the collection where the 'Title' field is not in the provided data
+        print(f'Updating collection {collection_name}...')
+        query = {MongoData.Title: {'$nin': data[MongoData.Title].to_list()}}
+        for itm_to_delete in collection.find(query):
+            collection.delete_one(itm_to_delete)
+
+        # Iterate over the data DataFrame
+        for r, title in enumerate(data[MongoData.Title]):
+            # Find and update a document in the collection based on the 'Title' field
+            if collection.find_one_and_update(
+                    {MongoData.Title: title},
+                    {'$set': {MongoData.Time: data[MongoData.Time][r]}}
+            ) is None:
+                # If the document doesn't exist, insert a new document into the collection
+                collection.insert_one(dict(zip(data.columns, data.values[r])))
+                # Append a new document to the list
+                self._documents.append([data[MongoData.Title][r], data[MongoData.Link][r]])
+
+        # Return the message containing information about inserted documents
+        print(f'Update completed: inserted {len(self._documents)} new documents')
+
+    @property
+    def database(self) -> Optional[Database]:
+        """Get the MongoDB database object.
+
+        Returns:
+            Optional[Database]: The MongoDB database object.
+
+        """
+        if self._cluster is not None:
+            return self._cluster['News']
+        return None
+
+    @property
+    def message(self) -> str:
+        """Get the message containing information about inserted documents.
+
+        Returns:
+            str: The message containing information about inserted documents.
+
+        """
+        if len(self._documents) != 0:
+            return ''.join([f'\"{el[0]}\": {el[1]}\n' for el in self._documents])
+        return ''
+
+    def close(self):
+        """Close the connection to the MongoDB cluster."""
+        if self._cluster is not None:
+            self._cluster.close()
 
 
 if __name__ == '__main__':
@@ -51,9 +114,15 @@ if __name__ == '__main__':
     df[MongoData.Link] = ["www.nothing.xx", "https:/www.nothing2.xx", "www.nothing3.xxxx"]
     df[MongoData.Time] = ["updated 20 minutes ago", "updated 16 minutes ago", "recently"]
 
-    # Establish a connection to the MongoDB cluster
-    from config.helpers import get_mongo_cluster
-    cluster: MongoClient = MongoClient(get_mongo_cluster())
+    try:
+        # Establish a connection to the MongoDB cluster
+        cluster = MongoDataBase()
 
-    # Print the result of the 'update_mongo' function with the test data
-    print(update_mongo(cluster['News'], 'Bloomberg', df))
+        # Update the MongoDB database with the scraped data and retrieve the message
+        cluster.update(data=df, collection_name='Bloomberg')
+
+        # Print the result of the 'update' function with the test data
+        print(cluster.message)
+
+    except Exception as error:
+        print(repr(error))

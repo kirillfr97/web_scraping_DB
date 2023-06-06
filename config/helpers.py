@@ -1,33 +1,80 @@
 import os
-from typing import Optional
 
 from .settings import *
 
 
-def get_mongo_cluster() -> Optional[str]:
-    # Check if the MONGO_LOGIN environment variable exists
-    if MONGO_LOGIN not in os.environ:
-        print(f'Environment variable {MONGO_LOGIN} does not exist')
-        return None
-
-    # Check if the MONGO_PASSWORD environment variable exists
-    if MONGO_PASSWORD not in os.environ:
-        print(f'Environment variable {MONGO_PASSWORD} does not exist')
-        return None
-
-    # Retrieve the values of MONGO_LOGIN and MONGO_PASSWORD from environment variables
-    login = os.environ.get(MONGO_LOGIN)
-    password = os.environ.get(MONGO_PASSWORD)
-
-    # Construct and return the MongoDB cluster URL
-    return f'mongodb+srv://{login}:{password}@freecluster.apw2jua.mongodb.net/'
+class NoEnvironmentVar(Exception):
+    def __init__(self, variable: str, *args, **kwargs):
+        super().__init__(f'Environment variable {variable} does not exist')
 
 
-def get_slack_token() -> Optional[str]:
-    # Check if the SLACK_BOT_TOKEN environment variable exists
-    if SLACK_BOT_TOKEN not in os.environ:
-        print(f'Environment variable {SLACK_BOT_TOKEN} does not exist')
-        return None
+def _get_env_variable(variable: str):
+    """Retrieve the value of the specified environment variable.
 
-    # Retrieve the value of SLACK_BOT_TOKEN from environment variables
-    return os.environ.get(SLACK_BOT_TOKEN)
+    Args:
+        variable (str): The name of the environment variable.
+
+    Returns:
+        str: The value of the environment variable.
+
+    Raises:
+        NoEnvironmentVar: If the specified environment variable does not exist.
+
+    """
+    # Check if the 'variable' environment variable exists
+    if variable not in os.environ:
+        raise NoEnvironmentVar(variable)
+
+    return os.environ.get(variable)
+
+
+def get_mongo_url() -> str:
+    """Retrieve the MongoDB URL from environment variables.
+
+    Returns:
+        str: The MongoDB URL.
+
+    Raises:
+        NoEnvironmentVar: If the MONGO_URL environment variable does not exist.
+
+    """
+    return _get_env_variable(MONGO_URL)
+
+
+def get_time_interval() -> int:
+    """Retrieve the time interval from environment variables.
+
+    Returns:
+        int: The time interval.
+
+    Raises:
+        NoEnvironmentVar: If the TIME_INTERVAL environment variable does not exist.
+
+    """
+    return int(_get_env_variable(TIME_INTERVAL))
+
+
+def get_slack_token() -> str:
+    """Retrieve the Slack bot token from environment variables.
+
+    Returns:
+        str: The Slack bot token.
+
+    Raises:
+        NoEnvironmentVar: If the SLACK_BOT_TOKEN environment variable does not exist.
+
+    """
+    return _get_env_variable(SLACK_BOT_TOKEN)
+
+
+def get_slack_channel() -> str:
+    """Retrieve the Slack channel from environment variables.
+
+    Returns:
+        str: The Slack channel.
+
+    Raises:
+        NoEnvironmentVar: If the SLACK_CHANNEL environment variable does not exist.
+
+    """
+    return _get_env_variable(SLACK_CHANNEL)
