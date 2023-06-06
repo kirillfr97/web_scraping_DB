@@ -5,7 +5,6 @@ from utils.slack import message_to_slack
 from scrapers.bloomberg import BloombergScraper
 from config.helpers import get_time_interval
 
-print('Connecting to Database...')
 
 # Establish a connection to the MongoDB cluster
 cluster = MongoDataBase()
@@ -26,7 +25,6 @@ try:
 
         # Sleep
         sleep(get_time_interval())
-        print(f'Sleep for {get_time_interval() // 60} min...\n')
 
 except Exception as e:
     # Handle other exceptions

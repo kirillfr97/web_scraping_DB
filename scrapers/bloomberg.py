@@ -15,10 +15,7 @@ class BloombergScraper(BaseScraper):
 
     def _scrape_page(self, web_page: BSoup) -> DataFrame:
         # Create an empty DataFrame
-        df = DataFrame()
-
-        # Create empty lists to store titles, links, and times
-        titles, links, times = [], [], []
+        df = DataFrame(columns=[MongoData.Title, MongoData.Link, MongoData.Time])
 
         # Specify the sections to extract data from
         sections = [
@@ -35,20 +32,17 @@ class BloombergScraper(BaseScraper):
                     link, title = self._get_lnk_title(tag)
                     title_time = self._get_title_time(tag)
 
-                    if link not in links and link is not None:
-                        # Append unique links, titles, and times to the respective lists
-                        links.append(link)
-                        titles.append(title)
-                        times.append(title_time)
+                    if link is not None and link not in df[MongoData.Link].values:
+                        # Append unique link, title, and title_time to DataFrame
+                        df.loc[len(df)] = {
+                            MongoData.Title: title,
+                            MongoData.Link: link,
+                            MongoData.Time: title_time
+                        }
 
                 except Exception as error:
                     # Handle any exceptions that occur during extraction
                     print(repr(error))
-
-        # Assign the lists as columns in the DataFrame
-        df[MongoData.Title] = titles
-        df[MongoData.Link] = links
-        df[MongoData.Time] = times
 
         return df
 

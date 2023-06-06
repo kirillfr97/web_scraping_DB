@@ -27,6 +27,8 @@ class MongoDataBase:
     def _connect(self):
         """Connect to the MongoDB cluster."""
         try:
+            print('Connecting to Database...')
+
             # Getting the MongoDB cluster URL
             cluster_url = get_mongo_url()
 
