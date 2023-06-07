@@ -1,5 +1,5 @@
-from re import compile
 from pandas import DataFrame
+from re import compile, findall
 from typing import Optional, Tuple
 from bs4.element import PageElement
 from bs4 import BeautifulSoup as BSoup, Tag
@@ -49,11 +49,13 @@ class BloombergScraper(BaseScraper):
     @staticmethod
     def _get_lnk_title(tag: Tag | PageElement) -> Tuple[Optional[str], Optional[str]]:
         # Extract links and titles from the given tag
-        sections = tag.find_all('a', attrs={'href': compile(r'https\S*')})
+        sections = tag.find_all('a', attrs={'href': compile(r'(?:https|/news/)\S*')})
         for section in sections:
             lnk = section.get('href')
             title = section.text
             if lnk != '' and title != '':
+                if len(findall(r'https\S*', lnk)) == 0:
+                    lnk = 'https://www.bloomberg.com' + lnk
                 return lnk, title.replace('â€™', '\'')
         return None, None
 

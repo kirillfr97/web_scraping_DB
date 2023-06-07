@@ -54,3 +54,16 @@ class BaseScraper(ABC, metaclass=ABCMeta):
             raise Exception('Received an empty DataFrame while scraping')
 
         return data
+
+
+if __name__ == '__main__':
+    from utils.mongo import MongoData
+    from bloomberg import BloombergScraper
+
+    # Create selected scraper
+    scraper: BaseScraper = BloombergScraper()
+
+    # Scrape the web-page
+    page_data = scraper.start()
+
+    print(page_data[MongoData.Title].values)
