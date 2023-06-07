@@ -58,13 +58,13 @@ class BaseScraper(ABC, metaclass=ABCMeta):
     @property
     @abstractmethod
     def target(self) -> str:
-        """The target website or domain for scraping"""
+        """The target website or domain for scraping. """
         pass
 
     @property
     @abstractmethod
     def crawl_url(self) -> str:
-        """The URL to crawl and scrape data from"""
+        """The URL to crawl and scrape data from. """
         pass
 
     @abstractmethod
