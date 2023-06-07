@@ -1,22 +1,25 @@
 from pandas import DataFrame
-from re import compile, findall
-from typing import Optional, Tuple
-from bs4.element import PageElement
 from bs4 import BeautifulSoup as BSoup, Tag
 
-from scrapers.base_scraper import BaseScraper
 from utils.mongo import MongoData
+from scrapers.base_scraper import BaseScraper
 
 
 class BloombergScraper(BaseScraper):
 
-    name = 'Bloomberg'
-    crawl_url = 'https://www.bloomberg.com/economics'
+    @property
+    def name(self) -> str:
+        return 'Bloomberg'
+
+    @property
+    def target(self) -> str:
+        return 'https://www.bloomberg.com'
+
+    @property
+    def crawl_url(self) -> str:
+        return 'https://www.bloomberg.com/economics'
 
     def _scrape_page(self, web_page: BSoup) -> DataFrame:
-        # Create an empty DataFrame
-        df = DataFrame(columns=[MongoData.Title, MongoData.Link, MongoData.Time])
-
         # Specify the sections to extract data from
         sections = [
             'styles_info__E4gXL',  # Main Headline
@@ -29,12 +32,12 @@ class BloombergScraper(BaseScraper):
             for tag in tags:
                 try:
                     # Extract link, title, and title time from the tag
-                    link, title = self._get_lnk_title(tag)
-                    title_time = self._get_title_time(tag)
+                    link, title = self._get_lnk_title(tag, regex=r'(?:https|/news/)\S*')
+                    title_time = self._get_title_time(tag, name='div', attrs={'data-component': 'recent-timestamp'})
 
-                    if link is not None and link not in df[MongoData.Link].values:
+                    if link is not None and link not in self._data[MongoData.Link].values:
                         # Append unique link, title, and title_time to DataFrame
-                        df.loc[len(df)] = {
+                        self._data.loc[len(self._data)] = {
                             MongoData.Title: title,
                             MongoData.Link: link,
                             MongoData.Time: title_time
@@ -44,23 +47,4 @@ class BloombergScraper(BaseScraper):
                     # Handle any exceptions that occur during extraction
                     print(repr(error))
 
-        return df
-
-    @staticmethod
-    def _get_lnk_title(tag: Tag | PageElement) -> Tuple[Optional[str], Optional[str]]:
-        # Extract links and titles from the given tag
-        sections = tag.find_all('a', attrs={'href': compile(r'(?:https|/news/)\S*')})
-        for section in sections:
-            lnk = section.get('href')
-            title = section.text
-            if lnk != '' and title != '':
-                if len(findall(r'https\S*', lnk)) == 0:
-                    lnk = 'https://www.bloomberg.com' + lnk
-                return lnk, title.replace('â€™', '\'')
-        return None, None
-
-    @staticmethod
-    def _get_title_time(tag: Tag | PageElement) -> str:
-        # Extract the title time from the given tag
-        section = tag.find("div", attrs={'data-component': 'recent-timestamp'})
-        return section.text if section else ''
+        return self._data

@@ -1,25 +1,128 @@
 from abc import ABC, ABCMeta, abstractmethod
-
-from bs4 import BeautifulSoup as BSoup
+from bs4.element import PageElement, ResultSet
+from bs4 import BeautifulSoup as BSoup, Tag
+from typing import Optional, Tuple
+from re import compile, findall
 from pandas import DataFrame
 from requests import Session
 
+from utils.mongo import MongoData
+
 
 class BaseScraper(ABC, metaclass=ABCMeta):
+    """Base class for web scrapers.
 
-    name: str
-    crawl_url: str
+    This class defines the common functionality and abstract methods for web scrapers.
+    Subclasses must implement the abstract methods and provide values for the required attributes.
+
+    """
+
+    def __init__(self):
+        """Initialize the BaseScraper object.
+
+        Initializes an empty DataFrame to store scraped data.
+
+        """
+        self._data: DataFrame = DataFrame(columns=[
+            MongoData.Title,
+            MongoData.Link,
+            MongoData.Time
+        ])
 
     def __init_subclass__(cls, **kwargs):
+        """Special method called when a subclass of BaseScraper is defined.
+
+        This method checks if the subclass provides values for the required attributes.
+
+        Args:
+            **kwargs: Additional keyword arguments.
+
+        Raises:
+            NotImplementedError: If the subclass does not provide a value for any of the required attributes.
+
+        """
         super().__init_subclass__(**kwargs)
-        if not getattr(cls, 'crawl_url', None):
-            raise NotImplementedError('Subclasses must provide a value for \"crawl_url\" attribute.')
-        if not getattr(cls, 'name', None):
-            raise NotImplementedError('Subclasses must provide a value for \"name\" attribute.')
+        if not hasattr(cls, 'target'):
+            raise NotImplementedError('Subclasses must provide a value for "target" attribute.')
+        if not hasattr(cls, 'crawl_url'):
+            raise NotImplementedError('Subclasses must provide a value for "crawl_url" attribute.')
+        if not hasattr(cls, 'name'):
+            raise NotImplementedError('Subclasses must provide a value for "name" attribute.')
+
+    @property
+    @abstractmethod
+    def name(self) -> str:
+        """The name of the web scraper. """
+        pass
+
+    @property
+    @abstractmethod
+    def target(self) -> str:
+        """The target website or domain for scraping"""
+        pass
+
+    @property
+    @abstractmethod
+    def crawl_url(self) -> str:
+        """The URL to crawl and scrape data from"""
+        pass
 
     @abstractmethod
     def _scrape_page(self, web_page: BSoup) -> DataFrame:
+        """Scrape a web page and extract relevant data.
+
+        This is an abstract method that must be implemented by subclasses.
+        It takes a BeautifulSoup object representing a web page and returns a DataFrame with scraped data.
+
+        Args:
+            web_page (BSoup): The BeautifulSoup object representing the web page to be scraped.
+
+        Returns:
+            DataFrame: A DataFrame containing the scraped data.
+
+        """
         pass
+
+    @staticmethod
+    def _get_title_time(tag: Tag | PageElement, name: str, attrs: dict) -> str:
+        """Extract the title time from a given tag.
+
+        This method extracts the title time from the given tag based on the specified name and attributes.
+
+        Args:
+            tag (Tag | PageElement): The BeautifulSoup Tag or PageElement object to extract the title time from.
+            name (str): The name of the tag to search for.
+            attrs (dict): A dictionary of attributes to search for in the tag.
+
+        Returns:
+            str: The extracted title time, or an empty string if not found.
+
+        """
+        section = tag.find(name, attrs=attrs)
+        return section.text if section else ''
+
+    def _get_lnk_title(self, tag: Tag | PageElement, regex: str) -> Tuple[Optional[str], Optional[str]]:
+        """Extract the link and title from a given tag.
+
+        This method extracts the link and title from the given tag based on the specified regex pattern.
+
+        Args:
+            tag (Tag | PageElement): The BeautifulSoup Tag or PageElement object to extract the link and title from.
+            regex (str): The regular expression pattern to match the link.
+
+        Returns:
+            Tuple[Optional[str], Optional[str]]: A tuple containing the extracted link and title, or (None, None) if not found.
+
+        """
+        sections: ResultSet = tag.find_all('a', attrs={'href': compile(regex)})
+        for section in sections:
+            lnk = section.get('href')
+            title = section.text
+            if lnk != '' and title != '':
+                if len(findall(r'https\S*', lnk)) == 0:
+                    lnk = self.target + lnk
+                return lnk, title.replace('â€™', '\'')
+        return None, None
 
     def start(self) -> DataFrame:
         """Scrape data from a web page provided in 'crawl_url' attribute.
@@ -41,27 +144,27 @@ class BaseScraper(ABC, metaclass=ABCMeta):
         session.close()
 
         if not response.ok:
-            raise Exception(f'<{response.status_code}> Error occurred while connecting to {url}')
+            raise Exception(f'<{response.status_code}> Error occurred while connecting to {self.crawl_url}')
 
         print(f'Scraping page {self.crawl_url}')
 
         # Invoke the provided 'method' function on the parsed page and return the result
-        data = self._scrape_page(BSoup(response.text, 'html.parser'))
+        scraped_data = self._scrape_page(BSoup(response.text, 'html.parser'))
 
-        print(f'Scrape completed: found {len(data)} elements on the page')
+        print(f'Scrape completed: found {len(scraped_data)} elements on the page')
 
-        if data.empty:
+        if scraped_data.empty:
             raise Exception('Received an empty DataFrame while scraping')
 
-        return data
+        return scraped_data
 
 
 if __name__ == '__main__':
-    from utils.mongo import MongoData
-    from bloomberg import BloombergScraper
+    from bloomberg import BloombergScraper as SelectedScraper
+    # from cnbc import CNBCScraper as SelectedScraper
 
     # Create selected scraper
-    scraper: BaseScraper = BloombergScraper()
+    scraper: BaseScraper = SelectedScraper()
 
     # Scrape the web-page
     page_data = scraper.start()
