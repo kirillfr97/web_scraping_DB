@@ -19,8 +19,8 @@ class BloombergScraper(BaseScraper):
 
         # Specify the sections to extract data from
         sections = [
-            "styles_info__E4gXL",  # Main Headline
-            "styles_storiesContainer__kLMAY",  # Latest News
+            'styles_info__E4gXL',  # Main Headline
+            'styles_storiesContainer__kLMAY',  # Latest News
         ]
 
         for section in sections:
@@ -62,5 +62,5 @@ class BloombergScraper(BaseScraper):
     @staticmethod
     def _get_title_time(tag: Tag | PageElement) -> str:
         # Extract the title time from the given tag
-        section = tag.find("div", attrs={"data-component": "recent-timestamp"})
+        section = tag.find("div", attrs={'data-component': 'recent-timestamp'})
         return section.text if section else ''

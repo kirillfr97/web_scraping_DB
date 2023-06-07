@@ -118,9 +118,9 @@ if __name__ == '__main__':
     df = DataFrame()
 
     # Populate the DataFrame with test data
-    df[MongoData.Title] = ["Test title 1", "Test title 2", "Test title 4"]
-    df[MongoData.Link] = ["www.nothing.xx", "https:/www.nothing2.xx", "www.nothing3.xxxx"]
-    df[MongoData.Time] = ["updated 20 minutes ago", "updated 16 minutes ago", "recently"]
+    df[MongoData.Title] = ['Test title 1', 'Test title 2', 'Test title 4']
+    df[MongoData.Link] = ['www.nothing.xx', 'https:/www.nothing2.xx', 'www.nothing3.xxxx']
+    df[MongoData.Time] = ['updated 20 minutes ago', 'updated 16 minutes ago', 'recently']
 
     try:
         # Establish a connection to the MongoDB cluster
