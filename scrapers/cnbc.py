@@ -13,7 +13,7 @@ class CNBCScraper(BaseScraper):
         return 'CNBC'
 
     @property
-    def target(self) -> str:
+    def target_url(self) -> str:
         return 'https://www.cnbc.com'
 
     @property
@@ -31,16 +31,15 @@ class CNBCScraper(BaseScraper):
         tags: ResultSet = web_page.find(class_=section).find_all(class_=element)
         for tag in tags:
             try:
-                # Extract link, title, and title time from the tag
-                link, title = self._get_lnk_title(tag, regex=r'https\S*')
-                title_time = self._get_title_time(tag, name='span', attrs={'class': 'Card-time'})
+                # Extract link and title from the tag
+                link, title = self._get_lnk_title(tag)
 
                 if link is not None and link not in self._data[MongoData.Link].values:
-                    # Append unique link, title, and title_time to DataFrame
+                    # Append unique link, title and UTC time to DataFrame
                     self._data.loc[len(self._data)] = {
                         MongoData.Title: title,
                         MongoData.Link: link,
-                        MongoData.Time: title_time
+                        MongoData.Time: self._get_article_time()
                     }
 
             except Exception as error:

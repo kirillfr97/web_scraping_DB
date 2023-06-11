@@ -12,7 +12,7 @@ class BloombergScraper(BaseScraper):
         return 'Bloomberg'
 
     @property
-    def target(self) -> str:
+    def target_url(self) -> str:
         return 'https://www.bloomberg.com'
 
     @property
@@ -31,16 +31,15 @@ class BloombergScraper(BaseScraper):
             tags: Tag = web_page.find(class_=section)
             for tag in tags:
                 try:
-                    # Extract link, title, and title time from the tag
+                    # Extract link and title from the tag
                     link, title = self._get_lnk_title(tag, regex=r'(?:https|/news/)\S*')
-                    title_time = self._get_title_time(tag, name='div', attrs={'data-component': 'recent-timestamp'})
 
                     if link is not None and link not in self._data[MongoData.Link].values:
-                        # Append unique link, title, and title_time to DataFrame
+                        # Append unique link, title and UTC time to DataFrame
                         self._data.loc[len(self._data)] = {
                             MongoData.Title: title,
                             MongoData.Link: link,
-                            MongoData.Time: title_time
+                            MongoData.Time: self._get_article_time()
                         }
 
                 except Exception as error:
