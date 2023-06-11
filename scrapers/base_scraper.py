@@ -89,10 +89,10 @@ class BaseScraper(ABC, metaclass=ABCMeta):
         """Get the current time with UTC offset.
 
         Returns:
-            str: The current time with UTC offset in the format 'UTC HH:MM'.
+            str: The current time with UTC offset in the format 'YYYY-MM-DD UTC HH:MM'.
 
         """
-        return datetime.now().time().strftime('UTC %H:%M')
+        return datetime.now().strftime('%Y-%m-%d UTC %H:%M')
 
     def _get_lnk_title(self, tag: Tag | PageElement, regex: str = r'https\S*') -> Tuple[Optional[str], Optional[str]]:
         """Extract the link and title from a given tag.
