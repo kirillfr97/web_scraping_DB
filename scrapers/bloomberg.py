@@ -1,3 +1,4 @@
+from typing import List
 from pandas import DataFrame
 from bs4 import BeautifulSoup as BSoup, Tag
 
@@ -16,8 +17,8 @@ class BloombergScraper(BaseScraper):
         return 'https://www.bloomberg.com'
 
     @property
-    def crawl_url(self) -> str:
-        return 'https://www.bloomberg.com/economics'
+    def crawl_urls(self) -> List[str]:
+        return ['https://www.bloomberg.com/economics']
 
     def _scrape_page(self, web_page: BSoup) -> DataFrame:
         # Specify the sections to extract data from
