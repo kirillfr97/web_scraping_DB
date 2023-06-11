@@ -127,7 +127,7 @@ if __name__ == '__main__':
         cluster = MongoDataBase()
 
         # Update the MongoDB database with the scraped data and retrieve the message
-        cluster.update(data=df, collection_name='Bloomberg')
+        cluster.update(data=df, collection_name='Test')
 
         # Print the result of the 'update' function with the test data
         print(cluster.message)

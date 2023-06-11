@@ -79,9 +79,6 @@ class BaseScraper(ABC, metaclass=ABCMeta):
         Returns:
             DataFrame: The scraped data as a DataFrame.
 
-        Raises:
-            Exception: If the scraped DataFrame is empty.
-
         """
         # List of scraped data
         scraped_data: List[DataFrame] = []
