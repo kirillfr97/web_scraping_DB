@@ -1,0 +1,17 @@
+{
+  "Bloomberg": {
+    "name": "Bloomberg",
+    "target_url": "https://www.bloomberg.com",
+    "crawl_urls": ["https://www.bloomberg.com/economics"],
+    "filter": "(?:https|/news/)\\S*",
+    "sections": ["styles_info__E4gXL",  "styles_storiesContainer__kLMAY"]
+  },
+
+  "CNBC": {
+    "name": "CNBC",
+    "target_url": "https://www.cnbc.com",
+    "crawl_urls": ["https://www.cnbc.com/business", "https://www.cnbc.com/investing"],
+    "element": "Card-titleAndFooter",
+    "sections": ["SectionWrapper-content"]
+  }
+}
