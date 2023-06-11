@@ -1,11 +1,10 @@
 from abc import ABC, ABCMeta, abstractmethod
-from bs4.element import PageElement, ResultSet
-from bs4 import BeautifulSoup as BSoup, Tag
-from typing import Optional, Tuple, List
-from pandas import DataFrame, concat
-from re import compile, findall
-from datetime import datetime
+
+from typing import List
 from requests import Session
+from datetime import datetime
+from pandas import DataFrame, concat
+from bs4 import BeautifulSoup as BSoup
 
 from utils.mongo import MongoData
 
@@ -73,35 +72,6 @@ class BaseScraper(ABC, metaclass=ABCMeta):
 
         """
         return datetime.now().strftime('%Y-%m-%d UTC %H:%M')
-
-    def _get_lnk_title(self, tag: Tag | PageElement, regex: str = r'https\S*') -> Tuple[Optional[str], Optional[str]]:
-        """Extract the link and title from a given tag.
-
-        This method extracts the link and title from the given tag based on the specified regex pattern.
-
-        Args:
-            tag (Tag | PageElement): The BeautifulSoup Tag or PageElement object to extract the link and title from.
-            regex (str): The regular expression pattern to match the link.
-
-        Returns:
-            Tuple[Optional[str], Optional[str]]: A tuple containing the extracted link and title,
-            or (None, None) if not found.
-
-        """
-        # Find all tags within the given tag that match the specified regex pattern
-        sections: ResultSet = tag.find_all('a', attrs={'href': compile(regex)})
-
-        # Iterate over the found tags
-        for section in sections:
-            lnk = section.get('href')  # Extract the link
-            title = section.text  # Extract the title
-            if lnk != '' and title != '':
-                # if it doesn't contain the full URL
-                if len(findall(r'https\S*', lnk)) == 0:
-                    # Prepend the target_url to the link
-                    lnk = self.target_url + lnk
-                return lnk, title.replace('â€™', '\'')
-        return None, None
 
     def start(self) -> DataFrame:
         """Scrape data from a web pages provided in 'crawl_urls' attribute.
