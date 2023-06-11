@@ -9,3 +9,6 @@ SLACK_BOT_TOKEN = 'SLACK_BOT_TOKEN'
 
 # This is a name of Environment Variable for MongoDB Cluster URL
 MONGO_URL = 'MONGO_URL'
+
+# This is a name of Environment Variable for MongoDB database object
+MONGO_DATABASE_NAME = 'MONGO_DATABASE_NAME'
