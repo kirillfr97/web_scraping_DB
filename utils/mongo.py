@@ -3,7 +3,7 @@ from pandas import DataFrame
 from pymongo import MongoClient
 from pymongo.database import Database
 
-from config.helpers import get_mongo_url
+from config.helpers import get_mongo_url, get_mongo_database
 
 
 class MongoData:
@@ -92,7 +92,7 @@ class MongoDataBase:
 
         """
         if self._cluster is not None:
-            return self._cluster['News']
+            return self._cluster[get_mongo_database()]
         return None
 
     @property

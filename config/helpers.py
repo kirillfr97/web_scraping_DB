@@ -41,6 +41,19 @@ def get_mongo_url() -> str:
     return _get_env_variable(MONGO_URL)
 
 
+def get_mongo_database() -> str:
+    """Retrieve the MongoDB database name from environment variables.
+
+    Returns:
+        str: The MongoDB database name.
+
+    Raises:
+        NoEnvironmentVar: If the MONGO_DATABASE_NAME environment variable does not exist.
+
+    """
+    return _get_env_variable(MONGO_DATABASE_NAME)
+
+
 def get_time_interval() -> int:
     """Retrieve the time interval from environment variables.
 
