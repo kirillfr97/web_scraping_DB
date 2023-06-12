@@ -111,16 +111,3 @@ class BaseScraper(ABC, metaclass=ABCMeta):
             scraped_data.append(new_data)
 
         return concat(scraped_data, ignore_index=True)
-
-
-if __name__ == '__main__':
-    from bloomberg import BloombergScraper as SelectedScraper
-    # from cnbc import CNBCScraper as SelectedScraper
-
-    # Create selected scraper
-    scraper: BaseScraper = SelectedScraper()
-
-    # Scrape the web-page
-    page_data = scraper.start()
-
-    print(page_data[MongoData.Title].values)

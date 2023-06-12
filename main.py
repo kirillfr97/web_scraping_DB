@@ -15,6 +15,7 @@ setup_file = cluster.setup_file
 try:
     # Endless River
     while True:
+        # Iterate over websites described in setup file
         for _, scraper_info in setup_file.items():
             # Creating scraper with information from setup file
             scraper = ImplicitLinkScraper(**scraper_info)
