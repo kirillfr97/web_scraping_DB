@@ -59,6 +59,10 @@ class MongoDataBase:
         # Clear list of updated documents
         self._documents = []
 
+        # If no data were given then exit without updating
+        if data.empty:
+            return
+
         # Get the 'collection_name' collection within database
         collection = self.database[collection_name]
 
@@ -92,10 +96,10 @@ class MongoDataBase:
 
         """
         if self.database is not None:
-            print('Reading setup file...')
+            print('Reading setup file from MongoDB...')
             setup = self.database[get_mongo_setup()].find_one()
             del setup['_id']  # Delete unnecessary key
-            
+            print(f'Found {len(setup)} websites to scrape')
             return setup
         return {}
 

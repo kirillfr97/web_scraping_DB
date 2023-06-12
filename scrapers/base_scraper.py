@@ -103,11 +103,14 @@ class BaseScraper(ABC, metaclass=ABCMeta):
             new_data = self._scrape_page(BSoup(response.text, 'html.parser'))
 
             if new_data.empty:
-                print('Received an empty DataFrame while scraping')
+                print(f'Received an empty DataFrame: nothing were found')
                 continue
 
             # Appending found data to 'scraped_data'
             print(f'Scrape completed: found {len(new_data)} elements on the page')
             scraped_data.append(new_data)
 
+        if len(scraped_data) == 0:
+            print(f'No data were scraped from {self.target_url}')
+            return DataFrame()
         return concat(scraped_data, ignore_index=True)
