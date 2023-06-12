@@ -5,6 +5,8 @@ from utils.slack import message_to_slack
 from config.helpers import get_time_interval
 from scrapers.cnbc import CNBCScraper
 from scrapers.bloomberg import BloombergScraper
+from scrapers.yahoo_finance import YahooFinanceScraper
+from scrapers.financial_time import FinancialTimesScraper
 
 
 # Establish a connection to the MongoDB cluster
@@ -15,7 +17,9 @@ try:
     while True:
         for scraper in [
             BloombergScraper(),
-            CNBCScraper()
+            CNBCScraper(),
+            FinancialTimesScraper(),
+            YahooFinanceScraper(),
         ]:
             # Scrape the web-page
             page_data = scraper.start()
