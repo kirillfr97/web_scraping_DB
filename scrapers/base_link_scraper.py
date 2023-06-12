@@ -53,7 +53,7 @@ class BaseLinkScraper(BaseScraper, metaclass=ABCMeta):
                 if len(findall(r'https\S*', lnk)) == 0:
                     # Prepend the target_url to the link
                     lnk = self.target_url + lnk
-                return lnk, title.replace('â€™', '\'')
+                return lnk, title.replace('â€™', '\'').strip()
         return None, None
 
     def _scrape_page(self, web_page: BSoup) -> DataFrame:
