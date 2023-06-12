@@ -3,7 +3,7 @@ from pandas import DataFrame
 from pymongo import MongoClient
 from pymongo.database import Database
 
-from config.helpers import get_mongo_url, get_mongo_database
+from config.helpers import get_mongo_url, get_mongo_database, get_mongo_setup
 
 
 class MongoData:
@@ -82,6 +82,22 @@ class MongoDataBase:
 
         # Return the message containing information about inserted documents
         print(f'Update completed: inserted {len(self._documents)} new documents')
+
+    @property
+    def setup_file(self) -> dict:
+        """Get the setup file within MongoDB database.
+
+        Returns:
+            Dict: Setup file which contains information about scraped websites.
+
+        """
+        if self.database is not None:
+            print('Reading setup file...')
+            setup = self.database[get_mongo_setup()].find_one()
+            del setup['_id']  # Delete unnecessary key
+            
+            return setup
+        return {}
 
     @property
     def database(self) -> Optional[Database]:

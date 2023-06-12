@@ -1,27 +1,22 @@
-import json
 from time import sleep
 
 from utils.mongo import MongoDataBase
 from utils.slack import message_to_slack
 from config.helpers import get_time_interval
-from scrapers.implicit_link_scraper import ImplicitLinkScraper
-
-
-def read_json(filename: str) -> dict:
-    print(f'Opening JSON file {filename}...')
-    with open(filename, 'r') as f:
-        data = json.load(f)
-    return data
+from scrapers.implicit_scraper import ImplicitLinkScraper
 
 
 # Establish a connection to the MongoDB cluster
 cluster = MongoDataBase()
 
+# Get setup file
+setup_file = cluster.setup_file
+
 try:
     # Endless River
     while True:
-        for _, scraper_info in read_json('test.json').items():
-            # Creating scraper
+        for _, scraper_info in setup_file.items():
+            # Creating scraper with information from setup file
             scraper = ImplicitLinkScraper(**scraper_info)
 
             # Scrape the web-page

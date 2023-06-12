@@ -54,6 +54,19 @@ def get_mongo_database() -> str:
     return _get_env_variable(MONGO_DATABASE_NAME)
 
 
+def get_mongo_setup() -> str:
+    """Retrieve the MongoDB setup collection name from environment variables.
+
+    Returns:
+        str: The MongoDB collection name which holds setup file.
+
+    Raises:
+        NoEnvironmentVar: If the MONGO_SETUP environment variable does not exist.
+
+    """
+    return _get_env_variable(MONGO_SETUP)
+
+
 def get_time_interval() -> int:
     """Retrieve the time interval from environment variables.
 
