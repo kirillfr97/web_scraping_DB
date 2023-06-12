@@ -59,7 +59,10 @@ class BaseLinkScraper(BaseScraper, metaclass=ABCMeta):
 
         # Iterate over the found tags
         for section in sections:
-            return processing(section)
+            lnk, title = processing(section)
+            if lnk is None:
+                continue
+            return lnk, title
 
         # If nothing found inside tag then trying to extract link from tag itself
         return processing(tag)
