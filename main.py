@@ -3,24 +3,30 @@ from time import sleep
 from utils.mongo import MongoDataBase
 from utils.slack import message_to_slack
 from config.helpers import get_time_interval
-from scrapers.cnbc import CNBCScraper
-from scrapers.bloomberg import BloombergScraper
-from scrapers.yahoo_finance import YahooFinanceScraper
-from scrapers.financial_time import FinancialTimesScraper
 
 
 # Establish a connection to the MongoDB cluster
 cluster = MongoDataBase()
 
 try:
+    from scrapers.cnbc import CNBCScraper
+    from scrapers.bloomberg import BloombergScraper
+    from scrapers.market_watch import MarketWatchScraper
+    from scrapers.yahoo_finance import YahooFinanceScraper
+    from scrapers.financial_time import FinancialTimesScraper
+
     # Endless River
     while True:
-        for scraper in [
-            BloombergScraper(),
-            CNBCScraper(),
-            FinancialTimesScraper(),
-            YahooFinanceScraper(),
+        for scraper_cls in [
+            BloombergScraper,
+            CNBCScraper,
+            FinancialTimesScraper,
+            YahooFinanceScraper,
+            MarketWatchScraper,
         ]:
+            # Instantiate the scraper object
+            scraper = scraper_cls()
+
             # Scrape the web-page
             page_data = scraper.start()
 
