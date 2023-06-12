@@ -16,7 +16,7 @@ class YahooFinanceScraper(BaseLinkScraper):
     @property
     def crawl_urls(self) -> List[str]:
         return [
-            'https://finance.yahoo.com/news/',
+            'https://finance.yahoo.com/news',
         ]
 
     @property
