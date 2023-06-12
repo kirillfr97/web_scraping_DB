@@ -114,7 +114,8 @@ class BaseScraper(ABC, metaclass=ABCMeta):
 
 
 if __name__ == '__main__':
-    from yahoo_finance import YahooFinanceScraper as SelectedScraper
+    from market_watch import MarketWatchScraper as SelectedScraper
+    # from yahoo_finance import YahooFinanceScraper as SelectedScraper
     # from financial_time import FinancialTimesScraper as SelectedScraper
     # from bloomberg import BloombergScraper as SelectedScraper
     # from cnbc import CNBCScraper as SelectedScraper
