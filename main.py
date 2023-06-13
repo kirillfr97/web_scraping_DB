@@ -9,14 +9,11 @@ from scrapers.implicit_scraper import ImplicitLinkScraper
 # Establish a connection to the MongoDB cluster
 cluster = MongoDataBase()
 
-# Get setup file
-setup_file = cluster.setup_file
-
 try:
     # Endless River
     while True:
         # Iterate over websites described in setup file
-        for _, scraper_info in setup_file.items():
+        for _, scraper_info in cluster.setup_file.items():
             # Creating scraper with information from setup file
             scraper = ImplicitLinkScraper(**scraper_info)
 

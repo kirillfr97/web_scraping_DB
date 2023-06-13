@@ -89,7 +89,14 @@ class MongoDataBase:
 
     @property
     def setup_file(self) -> dict:
-        """Get the setup file within MongoDB database.
+        """This property retrieves the setup file from the MongoDB database, which contains information
+        about the scraped websites.
+
+        Note: 'find_one' is generally considered to be less costly compared to operations like 'find' or 'aggregate' that
+        return multiple documents. The performance of the `find_one` operation can vary depending on factors such as the
+        size of the collection, the complexity of the query, the presence of indexes, and the network latency
+        between the client and the MongoDB server. If there are appropriate indexes on the queried fields,
+        the operation can be quite efficient.
 
         Returns:
             Dict: Setup file which contains information about scraped websites.
