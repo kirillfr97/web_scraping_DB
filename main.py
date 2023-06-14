@@ -10,6 +10,7 @@ cluster = MongoDataBase()
 
 try:
     from scrapers.cnbc import CNBCScraper
+    from scrapers.benzinga import BenzingaScraper
     from scrapers.bloomberg import BloombergScraper
     from scrapers.market_watch import MarketWatchScraper
     from scrapers.yahoo_finance import YahooFinanceScraper
@@ -23,6 +24,7 @@ try:
             FinancialTimesScraper,
             YahooFinanceScraper,
             MarketWatchScraper,
+            BenzingaScraper,
         ]:
             # Instantiate the scraper object
             scraper = scraper_cls()
