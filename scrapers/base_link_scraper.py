@@ -74,8 +74,11 @@ class BaseLinkScraper(BaseScraper, metaclass=ABCMeta):
             tags: Tag = web_page.find(class_=section)
 
             # If 'element' is set, then find all its instances
-            if self.element is not None:
+            if self.element is not None and tags is not None:
                 tags: ResultSet = tags.find_all(class_=self.element)
+
+            if tags is None:
+                continue
 
             for tag in tags:
                 try:
