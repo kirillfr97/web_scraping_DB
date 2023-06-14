@@ -41,20 +41,28 @@ class BaseLinkScraper(BaseScraper, metaclass=ABCMeta):
             or (None, None) if not found.
 
         """
+
+        def processing(obj: Tag | PageElement) -> Tuple[Optional[str], Optional[str]]:
+            # Extract the link and title
+            link, text = obj.get('href', ''), obj.text
+            # Checking for empty string
+            if link == '' or text == '':
+                return None, None
+            # If it doesn't contain the full URL
+            if len(findall(r'https\S*', link)) == 0:
+                # Prepend the target_url to the link
+                link = self.target_url + link
+            return link, text.replace('â€™', '\'').strip()
+
         # Find all tags within the given tag that match the specified regex pattern
         sections: ResultSet = tag.find_all('a', attrs={'href': compile(self.link_filter)})
 
         # Iterate over the found tags
         for section in sections:
-            lnk = section.get('href')  # Extract the link
-            title = section.text  # Extract the title
-            if lnk != '' and title != '':
-                # if it doesn't contain the full URL
-                if len(findall(r'https\S*', lnk)) == 0:
-                    # Prepend the target_url to the link
-                    lnk = self.target_url + lnk
-                return lnk, title.replace('â€™', '\'').strip()
-        return None, None
+            return processing(section)
+
+        # If nothing found inside tag then trying to extract link from tag itself
+        return processing(tag)
 
     def _scrape_page(self, web_page: BSoup) -> DataFrame:
         # Search through all given sections
