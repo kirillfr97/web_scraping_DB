@@ -44,3 +44,35 @@ class ImplicitLinkScraper(BaseLinkScraper):
         if self._filter is not None:
             return self._filter
         return super().link_filter
+
+
+if __name__ == '__main__':
+    from utils.mongo import MongoData
+
+    # Creating test dictionary
+    test = {
+        "MarketInsider": {
+            "name": "MarketInsider",
+            "target_url": "https://markets.businessinsider.com",
+            "crawl_urls": [
+                "https://markets.businessinsider.com"
+            ],
+            # "filter": "(?:https|/news/)\\S*",
+            "element": "top-story__link",
+            "sections": [
+                "top-story"
+            ]
+        }
+    }
+
+    for _, test_info in test.items():
+        # Creating scraper with information from test file
+        scraper = ImplicitLinkScraper(**test_info)
+
+        # Scrape the web-page
+        page_data = scraper.start()
+
+        if not page_data.empty:
+            print(page_data[MongoData.Title].values)
+        else:
+            print('Nothing to show!')
