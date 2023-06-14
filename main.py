@@ -9,6 +9,7 @@ from config.helpers import get_time_interval
 cluster = MongoDataBase()
 
 try:
+    from scrapers.wsj import WSJScraper
     from scrapers.cnbc import CNBCScraper
     from scrapers.benzinga import BenzingaScraper
     from scrapers.bloomberg import BloombergScraper
@@ -25,6 +26,7 @@ try:
             YahooFinanceScraper,
             MarketWatchScraper,
             BenzingaScraper,
+            WSJScraper,
         ]:
             # Instantiate the scraper object
             scraper = scraper_cls()

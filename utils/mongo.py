@@ -3,7 +3,7 @@ from pandas import DataFrame
 from pymongo import MongoClient
 from pymongo.database import Database
 
-from config.helpers import get_mongo_url, get_mongo_database, get_mongo_setup
+from config.helpers import get_mongo_url, get_mongo_database
 
 
 class MongoData:
