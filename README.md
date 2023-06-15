@@ -13,7 +13,8 @@ The project has the following structure:
 - `scrapers/`: Contains scraper classes for extracting links from websites.
   - `base_scraper.py`: Defines the base class `BaseScraper` with core methods.
   - `base_link_scraper.py`: Defines the `BaseLinkScraper` class, which inherits from `BaseScraper`. It provides methods to extract links from websites and implements crawling logic.
-  - `implicit_scraper.py`: Defines the main `ImplicitLinkScraper` class, which inherits from `BaseLinkScraper`.
+  - `bloomberg.py`: Defines the main `BloombergScraper` class, which inherits from `BaseLinkScraper`. It specifically targets the `https://www.bloomberg.com`.
+  - ...
 
 - `utils/`: Contains utility files.
   - `mongo.py`: Contains the `MongoDataBase` class, which handles connection and interaction with the MongoDB database.
@@ -21,7 +22,6 @@ The project has the following structure:
 
 - `scrape.py`: The main script from which the project is executed.
 
-- `scrape_test.py`: A script used for testing, which accepts an optional argument `-w (--webpage)` to specify the website to be tested (as recorded in the database).
 
 ## Dependencies
 
@@ -52,7 +52,7 @@ To get started with the web_scraping_DB, follow these steps:
 
 ## Usage
 
-You can use the web_scraping_DB for scraping and collecting information from various news websites. The `scrape.py` script serves as the entry point for the project and can be customized to suit your specific requirements. Additionally, the `scrape_test.py` script allows you to test and verify the logic on a particular website.
+You can use the web_scraping_DB for scraping and collecting information from various news websites. The `scrape.py` script serves as the entry point for the project and can be customized to suit your specific requirements. 
 
 ## License
 
