@@ -85,12 +85,16 @@ class BaseLinkScraper(BaseScraper, metaclass=ABCMeta):
                     # Extract link and title from the tag
                     link, title = self._get_lnk_title(tag)
 
-                    if link is not None and link not in self._data[MongoData.Link].values:
+                    if link is not None \
+                            and link not in self._data[MongoData.Link].values:
+                        # Get UTC time
+                        time = self._get_article_time()
                         # Append unique link, title and UTC time to DataFrame
                         self._data.loc[len(self._data)] = {
                             MongoData.Title: title,
                             MongoData.Link: link,
-                            MongoData.Time: self._get_article_time()
+                            MongoData.Creation: time,
+                            MongoData.Check: time
                         }
 
                 except Exception as error:

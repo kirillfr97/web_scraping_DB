@@ -26,7 +26,8 @@ class BaseScraper(ABC, metaclass=ABCMeta):
         self._data: DataFrame = DataFrame(columns=[
             MongoData.Title,
             MongoData.Link,
-            MongoData.Time
+            MongoData.Creation,
+            MongoData.Check
         ])
 
     @property

@@ -9,7 +9,8 @@ from config.helpers import get_mongo_url, get_mongo_database, get_mongo_setup
 class MongoData:
     Title = 'title'
     Link = 'link'
-    Time = 'time'
+    Check = 'check'
+    Creation = 'creation'
 
 
 class MongoDataBase:
@@ -77,7 +78,7 @@ class MongoDataBase:
             # Find and update a document in the collection based on the 'Title' field
             if collection.find_one_and_update(
                     {MongoData.Title: title},
-                    {'$set': {MongoData.Time: data[MongoData.Time][r]}}
+                    {'$set': {MongoData.Check: data[MongoData.Check][r]}}
             ) is None:
                 # If the document doesn't exist, insert a new document into the collection
                 collection.insert_one(dict(zip(data.columns, data.values[r])))
@@ -147,7 +148,8 @@ if __name__ == '__main__':
     # Populate the DataFrame with test data
     df[MongoData.Title] = ['Test title 1', 'Test title 2', 'Test title 4']
     df[MongoData.Link] = ['www.nothing.xx', 'https:/www.nothing2.xx', 'www.nothing3.xxxx']
-    df[MongoData.Time] = ['updated 20 minutes ago', 'updated 16 minutes ago', 'recently']
+    df[MongoData.Check] = ['12:59', '12:29', '12:29']
+    df[MongoData.Creation] = ['12:29', '12:29', '12:29']
 
     try:
         # Establish a connection to the MongoDB cluster
