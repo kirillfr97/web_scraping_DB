@@ -12,9 +12,9 @@ cluster = MongoDataBase()
 try:
     # Endless River
     while True:
-        # Iterate over websites described in setup file
+        # Iterate over websites described in setup test_file
         for _, scraper_info in cluster.setup_file.items():
-            # Creating scraper with information from setup file
+            # Creating scraper with information from setup test_file
             scraper = ImplicitLinkScraper(**scraper_info)
 
             # Scrape the web-page
