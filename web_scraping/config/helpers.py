@@ -1,14 +1,12 @@
 import os
 
-from .settings import *
-
 
 class NoEnvironmentVar(Exception):
-    def __init__(self, variable: str, *args, **kwargs):
+    def __init__(self, variable: str):
         super().__init__(f'Environment variable {variable} does not exist')
 
 
-def _get_env_variable(variable: str):
+def get_env_variable(variable: str) -> str:
     """Retrieve the value of the specified environment variable.
 
     Args:
@@ -26,81 +24,3 @@ def _get_env_variable(variable: str):
         raise NoEnvironmentVar(variable)
 
     return os.environ.get(variable)
-
-
-def get_mongo_url() -> str:
-    """Retrieve the MongoDB URL from environment variables.
-
-    Returns:
-        str: The MongoDB URL.
-
-    Raises:
-        NoEnvironmentVar: If the MONGO_URL environment variable does not exist.
-
-    """
-    return _get_env_variable(MONGO_URL)
-
-
-def get_mongo_database() -> str:
-    """Retrieve the MongoDB database name from environment variables.
-
-    Returns:
-        str: The MongoDB database name.
-
-    Raises:
-        NoEnvironmentVar: If the MONGO_DATABASE_NAME environment variable does not exist.
-
-    """
-    return _get_env_variable(MONGO_DATABASE_NAME)
-
-
-def get_mongo_setup() -> str:
-    """Retrieve the MongoDB setup collection name from environment variables.
-
-    Returns:
-        str: The MongoDB collection name which holds setup file.
-
-    Raises:
-        NoEnvironmentVar: If the MONGO_SETUP environment variable does not exist.
-
-    """
-    return _get_env_variable(MONGO_SETUP)
-
-
-def get_time_interval() -> int:
-    """Retrieve the time interval from environment variables.
-
-    Returns:
-        int: The time interval.
-
-    Raises:
-        NoEnvironmentVar: If the TIME_INTERVAL environment variable does not exist.
-
-    """
-    return int(_get_env_variable(TIME_INTERVAL))
-
-
-def get_slack_token() -> str:
-    """Retrieve the Slack bot token from environment variables.
-
-    Returns:
-        str: The Slack bot token.
-
-    Raises:
-        NoEnvironmentVar: If the SLACK_BOT_TOKEN environment variable does not exist.
-
-    """
-    return _get_env_variable(SLACK_BOT_TOKEN)
-
-
-def get_slack_channel() -> str:
-    """Retrieve the Slack channel from environment variables.
-
-    Returns:
-        str: The Slack channel.
-
-    Raises:
-        NoEnvironmentVar: If the SLACK_CHANNEL environment variable does not exist.
-
-    """
-    return _get_env_variable(SLACK_CHANNEL)
