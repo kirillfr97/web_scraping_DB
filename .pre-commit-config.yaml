@@ -1,0 +1,43 @@
+default_language_version:
+    python: python3.11
+
+exclude: (venv|.venv|tests)/.*
+
+repos:
+  # General pre commit hooks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+      - id: check-merge-conflict
+      - id: check-toml
+      - id: check-yaml
+      - id: end-of-file-fixer
+      - id: mixed-line-ending
+
+  # Run black formatter
+  - repo: https://github.com/psf/black
+    rev: 23.7.0
+    hooks:
+      - id: black
+        files: \.py$
+        args: [--skip-string-normalization, --line-length=140]
+
+  # Run flake8 linter
+  - repo: https://github.com/pycqa/flake8
+    rev: 6.0.0
+    hooks:
+      - id: flake8
+        name: flake8
+        language: python
+        types: [python]
+        additional_dependencies:
+          [
+            flake8-isort,
+            flake8-eradicate,
+            flake8-bugbear,
+            flake8-use-fstring,
+            flake8-broken-line,
+            flake8-comprehensions,
+            flake8-pytest-style,
+            flake8-annotations,
+          ]

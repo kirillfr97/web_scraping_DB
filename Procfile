@@ -1,1 +1,1 @@
-worker: python scrape.py
+worker: python web_scraping/scrape.py -l
