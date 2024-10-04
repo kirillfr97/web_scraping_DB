@@ -3,7 +3,7 @@ from pandas import DataFrame
 from pymongo import MongoClient
 from pymongo.database import Database
 
-from config.helpers import get_mongo_url, get_mongo_database
+from config.helpers import get_mongo_url, get_mongo_database, get_mongo_setup
 
 
 class MongoData:
@@ -87,6 +87,29 @@ class MongoDataBase:
 
         # Return the message containing information about inserted documents
         print(f'Update completed: inserted {len(self._documents)} new documents')
+
+    @property
+    def setup_file(self) -> dict:
+        """This property retrieves the setup file from the MongoDB database, which contains information
+        about the scraped websites.
+
+        Note: 'find_one' is generally considered to be less costly compared to operations like 'find' or 'aggregate' that
+        return multiple documents. The performance of the `find_one` operation can vary depending on factors such as the
+        size of the collection, the complexity of the query, the presence of indexes, and the network latency
+        between the client and the MongoDB server. If there are appropriate indexes on the queried fields,
+        the operation can be quite efficient.
+
+        Returns:
+            Dict: Setup file which contains information about scraped websites.
+
+        """
+        if self.database is not None:
+            print('Reading setup file from MongoDB...')
+            setup = self.database[get_mongo_setup()].find_one()
+            del setup['_id']  # Delete unnecessary key
+            print(f'Found {len(setup)} websites to scrape')
+            return setup
+        return {}
 
     @property
     def database(self) -> Optional[Database]:

@@ -12,3 +12,6 @@ MONGO_URL = 'MONGO_URL'
 
 # This is a name of Environment Variable for MongoDB database object
 MONGO_DATABASE_NAME = 'MONGO_DATABASE_NAME'
+
+# This is a name of Environment Variable for MongoDB configuration file (collection name which stores it)
+MONGO_SETUP = 'MONGO_SETUP'

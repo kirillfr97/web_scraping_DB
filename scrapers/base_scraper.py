@@ -118,12 +118,7 @@ class BaseScraper(ABC, metaclass=ABCMeta):
 
 
 if __name__ == '__main__':
-    from wsj import WSJScraper as SelectedScraper
-    # from benzinga import BenzingaScraper as SelectedScraper
-    # from market_watch import MarketWatchScraper as SelectedScraper
-    # from yahoo_finance import YahooFinanceScraper as SelectedScraper
-    # from financial_time import FinancialTimesScraper as SelectedScraper
-    # from bloomberg import BloombergScraper as SelectedScraper
+    from bloomberg import BloombergScraper as SelectedScraper
     # from cnbc import CNBCScraper as SelectedScraper
 
     # Create selected scraper
@@ -132,7 +127,4 @@ if __name__ == '__main__':
     # Scrape the web-page
     page_data = scraper.start()
 
-    if not page_data.empty:
-        print(page_data[MongoData.Title].values)
-    else:
-        print('Nothing to show!')
+    print(page_data[MongoData.Title].values)
