@@ -1,104 +1,93 @@
 from abc import ABCMeta, abstractmethod
-from pandas import DataFrame
-from re import compile, findall
-from typing import Optional, Tuple, List
-from bs4 import BeautifulSoup as BSoup, Tag
-from bs4.element import PageElement, ResultSet
+from datetime import datetime
+from hashlib import sha1
+from re import findall
+from typing import List, Optional
 
-from utils.mongo import MongoData
-from scrapers.base_scraper import BaseScraper
+from lxml.html import HtmlElement
+
+from web_scraping.scrapers.base_scraper import BaseScraper
+from web_scraping.utils import DataFields
+
+
+class NoDataError(Exception):
+    pass
 
 
 class BaseLinkScraper(BaseScraper, metaclass=ABCMeta):
-
-    @property
-    def element(self) -> Optional[str]:
-        """Specify the element to search for in sections. """
-        return None
-
     @property
     def link_filter(self) -> str:
-        """The regular expression pattern to match the link. """
+        """The regular expression pattern to match the link."""
         return r'https\S*'
 
     @property
     @abstractmethod
     def sections(self) -> List[str]:
-        """Specify the sections on pages to extract data from. """
+        """Specify the sections on pages to extract data from."""
         pass
 
-    def _get_lnk_title(self, tag: Tag | PageElement) -> Tuple[Optional[str], Optional[str]]:
-        """Extract the link and title from a given tag.
+    @abstractmethod
+    def is_sponsored(self, element: HtmlElement) -> bool:
+        """Checks whether the article is sponsored or not."""
+        pass
 
-        This method extracts the link and title from the given tag based on the regex pattern
-        specified in 'link_filter'.
+    def _get_link_in_tag(self, element: HtmlElement) -> Optional[str]:
+        """Extract the link from a given tag.
+
+        This method extracts the link from the given tag based on the regex pattern specified in 'link_filter'.
 
         Args:
-            tag (Tag | PageElement): The BeautifulSoup Tag or PageElement object to extract the link and title from.
+            element (HtmlElement): The HTML object to extract the link from.
 
         Returns:
-            Tuple[Optional[str], Optional[str]]: A tuple containing the extracted link and title,
-            or (None, None) if not found.
+            Optional[str]: An extracted link or None if not found.
 
         """
 
-        def processing(obj: Tag | PageElement) -> Tuple[Optional[str], Optional[str]]:
-            # Extract the link and title
-            link, text = obj.get('href', ''), obj.text
-            # Checking for empty string
-            if link == '' or text == '':
-                return None, None
-            # If it doesn't contain the full URL
-            if len(findall(r'https\S*', link)) == 0:
-                # Prepend the target_url to the link
-                link = self.target_url + link
-            return link, text.replace('â€™', '\'').strip()
+        link_element = element
+        if element.find('a') is not None:
+            link_element = element.find('a')
+        link = link_element.get('href', '')
 
-        # Find all tags within the given tag that match the specified regex pattern
-        sections: ResultSet = tag.find_all('a', attrs={'href': compile(self.link_filter)})
+        # Checking for empty string
+        if link == '':
+            return None
 
-        # Iterate over the found tags
-        for section in sections:
-            lnk, title = processing(section)
-            if lnk is None:
-                continue
-            return lnk, title
+        # If it doesn't contain the full URL
+        if len(findall(r'https\S*', link)) == 0:
+            # Prepend the target_url to the link
+            link = self.target_url + link
+        return link
 
-        # If nothing found inside tag then trying to extract link from tag itself
-        return processing(tag)
+    def _scrape_page(self, web_page: HtmlElement):
+        # Search through all given XPath
+        for path in self.sections[self._current_page]:
+            # Extract elements satisfying the XPath
+            elements: List[HtmlElement] = web_page.xpath(path)
 
-    def _scrape_page(self, web_page: BSoup) -> DataFrame:
-        # Search through all given sections
-        for section in self.sections:
-            # Find all tags with the specified class in the page
-            tags: Tag = web_page.find(class_=section)
+            if len(elements) == 0:
+                raise NoDataError(f'Nothing were found on {path = } on {self.current_url}')
 
-            # If 'element' is set, then find all its instances
-            if self.element is not None and tags is not None:
-                tags: ResultSet = tags.find_all(class_=self.element)
+            for element in elements:
+                # If element contains sponsored content, then skip it
+                if self.is_sponsored(element):
+                    continue
 
-            if tags is None:
-                continue
+                # Extract link from the tag
+                link = self._get_link_in_tag(element)
 
-            for tag in tags:
-                try:
-                    # Extract link and title from the tag
-                    link, title = self._get_lnk_title(tag)
+                # Checking for None value
+                if link is None:
+                    continue
 
-                    if link is not None \
-                            and link not in self._data[MongoData.Link].values:
-                        # Get UTC time
-                        time = self._get_article_time()
-                        # Append unique link, title and UTC time to DataFrame
-                        self._data.loc[len(self._data)] = {
-                            MongoData.Title: title,
-                            MongoData.Link: link,
-                            MongoData.Creation: time,
-                            MongoData.Check: time
-                        }
+                if link in self._data[DataFields.Link].values:
+                    continue
 
-                except Exception as error:
-                    # Handle any exceptions that occur during extraction
-                    print(repr(error))
+                # Get UTC time
+                time = datetime.utcnow()
 
-        return self._data
+                # Creating unique hash
+                hash_id = sha1((self.name + link).encode()).hexdigest()
+
+                # Append unique link, title and UTC time to DataFrame
+                self._data.loc[len(self._data)] = dict(zip(list(DataFields()), [self.name, hash_id, '', link, time, time, '']))
